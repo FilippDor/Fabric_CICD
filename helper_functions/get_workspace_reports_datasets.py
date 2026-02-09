@@ -5,7 +5,6 @@ import json
 import requests
 from datetime import datetime, timezone
 from pathlib import Path
-from log_utils import log_to_console
 from dotenv import load_dotenv
 
 
