@@ -1,0 +1,96 @@
+{
+  "environment": "prod",
+  "generatedAt": "2026-02-10T12:27:49Z",
+  "summary": {
+    "totalReports": 2,
+    "totalPages": 9,
+    "failedPages": 2,
+    "passedPages": 7,
+    "passRate": 77.78
+  },
+  "reports": [
+    {
+      "reportId": "009214c6-654c-42a7-aa8a-3289128d0e59",
+      "reportName": "TransactionLog_Final",
+      "environment": "prod",
+      "pages": {
+        "880a94f37f27105816ac": {
+          "errors": {},
+          "duration": 1291.5,
+          "embedUrl": "https://app.powerbi.com/reportEmbed?reportId=009214c6-654c-42a7-aa8a-3289128d0e59&pageName=880a94f37f27105816ac",
+          "serviceUrl": "https://app.powerbi.com/groups/9c8f98c0-5d79-4431-9deb-8368b1671461/reports/009214c6-654c-42a7-aa8a-3289128d0e59/880a94f37f27105816ac"
+        },
+        "590759dfe2a0a769b886": {
+          "errors": {},
+          "duration": 1219.8999999999942,
+          "embedUrl": "https://app.powerbi.com/reportEmbed?reportId=009214c6-654c-42a7-aa8a-3289128d0e59&pageName=590759dfe2a0a769b886",
+          "serviceUrl": "https://app.powerbi.com/groups/9c8f98c0-5d79-4431-9deb-8368b1671461/reports/009214c6-654c-42a7-aa8a-3289128d0e59/590759dfe2a0a769b886"
+        },
+        "272ea98aab62e456c401": {
+          "errors": {},
+          "duration": 1009.5,
+          "embedUrl": "https://app.powerbi.com/reportEmbed?reportId=009214c6-654c-42a7-aa8a-3289128d0e59&pageName=272ea98aab62e456c401",
+          "serviceUrl": "https://app.powerbi.com/groups/9c8f98c0-5d79-4431-9deb-8368b1671461/reports/009214c6-654c-42a7-aa8a-3289128d0e59/272ea98aab62e456c401"
+        },
+        "9c6f91b8a7c4bd43912a": {
+          "errors": {},
+          "duration": 1070.4000000000233,
+          "embedUrl": "https://app.powerbi.com/reportEmbed?reportId=009214c6-654c-42a7-aa8a-3289128d0e59&pageName=9c6f91b8a7c4bd43912a",
+          "serviceUrl": "https://app.powerbi.com/groups/9c8f98c0-5d79-4431-9deb-8368b1671461/reports/009214c6-654c-42a7-aa8a-3289128d0e59/9c6f91b8a7c4bd43912a"
+        },
+        "bea2cfce9c0add495d96": {
+          "errors": {},
+          "duration": 1080,
+          "embedUrl": "https://app.powerbi.com/reportEmbed?reportId=009214c6-654c-42a7-aa8a-3289128d0e59&pageName=bea2cfce9c0add495d96",
+          "serviceUrl": "https://app.powerbi.com/groups/9c8f98c0-5d79-4431-9deb-8368b1671461/reports/009214c6-654c-42a7-aa8a-3289128d0e59/bea2cfce9c0add495d96"
+        },
+        "4bc5e63e142e6bed0382": {
+          "errors": {},
+          "duration": 1010.0999999999767,
+          "embedUrl": "https://app.powerbi.com/reportEmbed?reportId=009214c6-654c-42a7-aa8a-3289128d0e59&pageName=4bc5e63e142e6bed0382",
+          "serviceUrl": "https://app.powerbi.com/groups/9c8f98c0-5d79-4431-9deb-8368b1671461/reports/009214c6-654c-42a7-aa8a-3289128d0e59/4bc5e63e142e6bed0382"
+        }
+      },
+      "failedPages": [],
+      "reportLoadTime": 2572.100000000006,
+      "totalDuration": 8777.599999999977,
+      "pythonDuration": 9.294876098632812
+    },
+    {
+      "reportId": "b0df05af-1b3e-43b3-a187-efde0274fd3e",
+      "reportName": "Corporate Spend",
+      "environment": "prod",
+      "pages": {
+        "ReportSection2": {
+          "errors": {
+            "unknown": "QueryUserError"
+          },
+          "duration": 1589.0999999999767,
+          "embedUrl": "https://app.powerbi.com/reportEmbed?reportId=b0df05af-1b3e-43b3-a187-efde0274fd3e&pageName=ReportSection2",
+          "serviceUrl": "https://app.powerbi.com/groups/9c8f98c0-5d79-4431-9deb-8368b1671461/reports/b0df05af-1b3e-43b3-a187-efde0274fd3e/ReportSection2"
+        },
+        "ReportSection32e53fe7c4f4cd87dd85": {
+          "errors": {
+            "unknown": "QueryUserError"
+          },
+          "duration": 1369.100000000035,
+          "embedUrl": "https://app.powerbi.com/reportEmbed?reportId=b0df05af-1b3e-43b3-a187-efde0274fd3e&pageName=ReportSection32e53fe7c4f4cd87dd85",
+          "serviceUrl": "https://app.powerbi.com/groups/9c8f98c0-5d79-4431-9deb-8368b1671461/reports/b0df05af-1b3e-43b3-a187-efde0274fd3e/ReportSection32e53fe7c4f4cd87dd85"
+        },
+        "ReportSectionaad1fe93e01b608cbcaa": {
+          "errors": {},
+          "duration": 1084.5,
+          "embedUrl": "https://app.powerbi.com/reportEmbed?reportId=b0df05af-1b3e-43b3-a187-efde0274fd3e&pageName=ReportSectionaad1fe93e01b608cbcaa",
+          "serviceUrl": "https://app.powerbi.com/groups/9c8f98c0-5d79-4431-9deb-8368b1671461/reports/b0df05af-1b3e-43b3-a187-efde0274fd3e/ReportSectionaad1fe93e01b608cbcaa"
+        }
+      },
+      "failedPages": [
+        "ReportSection2",
+        "ReportSection32e53fe7c4f4cd87dd85"
+      ],
+      "reportLoadTime": 2515.4000000000233,
+      "totalDuration": 6308.700000000012,
+      "pythonDuration": 8.71243929862976
+    }
+  ]
+}
