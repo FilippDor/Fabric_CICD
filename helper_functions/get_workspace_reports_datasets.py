@@ -111,15 +111,21 @@ for ds_id in dataset_ids:
         if ds_resp.ok:
             ds_data = ds_resp.json()
             ds_name = ds_data.get("name", "")
-            is_effective_identity_required = ds_data.get("isEffectiveIdentityRequired", False)
-            is_effective_identity_roles_required = ds_data.get("isEffectiveIdentityRolesRequired", False)
+            is_effective_identity_required = ds_data.get(
+                "isEffectiveIdentityRequired", False
+            )
+            is_effective_identity_roles_required = ds_data.get(
+                "isEffectiveIdentityRolesRequired", False
+            )
 
             dataset_metadata[ds_id] = {
                 "name": ds_name,
                 "isEffectiveIdentityRequired": is_effective_identity_required,
                 "isEffectiveIdentityRolesRequired": is_effective_identity_roles_required,
             }
-            print(f"  Dataset {ds_id} ({ds_name}): effectiveIdentityRequired={is_effective_identity_required}, rolesRequired={is_effective_identity_roles_required}")
+            print(
+                f"  Dataset {ds_id} ({ds_name}): effectiveIdentityRequired={is_effective_identity_required}, rolesRequired={is_effective_identity_roles_required}"
+            )
     except Exception as e:
         print(f"  WARN: Could not fetch dataset {ds_id}: {e}", file=sys.stderr)
 
@@ -138,8 +144,12 @@ for r in reports_raw:
         "DatasetId": ds_id,
         "DatasetName": ds_info.get("name", ""),
         "WorkspaceId": WORKSPACE_ID,
-        "IsEffectiveIdentityRequired": ds_info.get("isEffectiveIdentityRequired", False),
-        "IsEffectiveIdentityRolesRequired": ds_info.get("isEffectiveIdentityRolesRequired", False),
+        "IsEffectiveIdentityRequired": ds_info.get(
+            "isEffectiveIdentityRequired", False
+        ),
+        "IsEffectiveIdentityRolesRequired": ds_info.get(
+            "isEffectiveIdentityRolesRequired", False
+        ),
     }
     report_list.append(report_entry)
 
