@@ -1,12 +1,39 @@
 # Power BI Visual Regression Testing with CI/CD
 
+[![CI](https://github.com/FilippDor/power-bi-visual-testing-python/actions/workflows/ci.yml/badge.svg)](https://github.com/FilippDor/power-bi-visual-testing-python/actions/workflows/ci.yml)
+[![Visual Tests](https://github.com/FilippDor/power-bi-visual-testing-python/actions/workflows/visual-tests.yml/badge.svg)](https://github.com/FilippDor/power-bi-visual-testing-python/actions/workflows/visual-tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+
 > Automated CI/CD pipeline that tests every page of every Power BI report in a workspace for visual rendering errors, using Python, Playwright, and GitHub Actions.
+
+---
+
+## Quick Start
+
+```bash
+# 1. Clone and install
+git clone https://github.com/FilippDor/power-bi-visual-testing-python.git
+cd power-bi-visual-testing-python
+python -m venv .venv && source .venv/bin/activate  # or .venv\Scripts\activate on Windows
+pip install .
+
+# 2. Install browser
+playwright install --with-deps chromium
+
+# 3. Configure credentials
+cp .env.example .env
+# Edit .env with your Service Principal credentials
+
+# 4. Run tests
+pytest
+```
 
 ---
 
 ## The Problem
 
-Power BI reports can silently break, a DAX measure changes, a data source times out, a visual fails to render. Without automated testing, these issues go unnoticed until someone manually opens the report and spots the problem.
+Power BI reports can silently break — a DAX measure changes, a data source times out, a visual fails to render. Without automated testing, these issues go unnoticed until someone manually opens the report and spots the problem.
 
 ## The Solution
 
@@ -78,7 +105,7 @@ If any visual fails to render, the pipeline fails and the team is alerted.
 | **Authentication** | Azure AD Service Principal (OAuth2 client_credentials) |
 | **CI/CD** | GitHub Actions |
 | **Reporting** | GitHub Pages (auto-deployed HTML report) |
-| **Language** | Python 3.11+ |
+| **Language** | Python 3.10+ |
 
 ---
 
@@ -95,9 +122,9 @@ Every function in the pipeline has its own test. The framework validates each la
 | `test_report_ids_unique` | No duplicate report IDs in the metadata |
 | `test_access_token_success` | OAuth2 token acquisition against Azure AD works and returns a valid token |
 | `test_embed_token_success` | Embed token generation via the Power BI REST API works for at least one report |
-| `test_pbi_rendering_validation` | **Full visual scan**, embeds each report in headless Chromium, navigates every page, monitors render events, detects errors, captures screenshots of failures |
+| `test_pbi_rendering_validation` | **Full visual scan** — embeds each report in headless Chromium, navigates every page, monitors render events, detects errors, captures screenshots of failures |
 
-The first 7 tests act as **pre-flight checks**, if authentication or metadata is broken, you get a clear failure before the pipeline spends time on visual rendering.
+The first 7 tests act as **pre-flight checks** — if authentication or metadata is broken, you get a clear failure before the pipeline spends time on visual rendering.
 
 ---
 
@@ -108,11 +135,11 @@ Report metadata is **automatically refreshed** at the start of every test sessio
 - New reports added to the workspace are picked up immediately
 - Removed reports are no longer tested
 - RLS flag changes on datasets are reflected
-- No stale metadata issues, every run is up to date
+- No stale metadata issues — every run is up to date
 
 If the metadata refresh fails (e.g., authentication error, network issue), the entire test session is aborted with a clear error message.
 
-You do not need to run the metadata script manually before running tests locally, it happens automatically.
+You do not need to run the metadata script manually before running tests locally — it happens automatically.
 
 ---
 
@@ -122,11 +149,11 @@ A key feature of this framework is **automatic RLS detection and handling**. Man
 
 ### How It Works
 
-1. **Auto-detection**, The metadata script queries each dataset via the Power BI REST API and reads the `isEffectiveIdentityRequired` and `isEffectiveIdentityRolesRequired` flags. These are stored in the metadata JSON so the test runner knows which datasets need an identity.
+1. **Auto-detection** — The metadata script queries each dataset via the Power BI REST API and reads the `isEffectiveIdentityRequired` and `isEffectiveIdentityRolesRequired` flags. These are stored in the metadata JSON so the test runner knows which datasets need an identity.
 
-2. **Automatic token generation**, When a dataset requires RLS, the embed token request automatically includes an effective identity with the username `TestUser` and the role from `DEFAULT_RLS_ROLE`.
+2. **Automatic token generation** — When a dataset requires RLS, the embed token request automatically includes an effective identity with the username `TestUser` and the role from `DEFAULT_RLS_ROLE`.
 
-3. **Per-report override**, You can set a `"Role"` field on any report in the metadata JSON to use a specific role instead of the default.
+3. **Per-report override** — You can set a `"Role"` field on any report in the metadata JSON to use a specific role instead of the default.
 
 ### Important: Setting Up a Global RLS User
 
@@ -162,14 +189,28 @@ Screenshots are only taken for failed pages to keep artifacts small.
 
 ---
 
-## CI/CD Pipeline
+## CI/CD Pipelines
+
+### Visual Tests Pipeline
 
 The GitHub Actions workflow (`.github/workflows/visual-tests.yml`) runs on:
-- Every **push** to `main` (for testing purposes)
-- Every **pull request** to `main` (for testing purposes)
+- Every **push** to `main`
+- Every **pull request** to `main`
 - **Manual trigger** (workflow_dispatch)
 
-### Pipeline Steps
+> **Note:** This pipeline requires Azure credentials configured as GitHub Secrets.
+
+### CI Quality Gates Pipeline
+
+The CI workflow (`.github/workflows/ci.yml`) runs on every push/PR with **no credentials required**:
+- Linting with **ruff**
+- Format checking with **ruff format**
+- Type checking with **mypy**
+- Unit tests (mocked, no Azure access needed)
+
+Runs across Python 3.10, 3.11, and 3.12.
+
+### Pipeline Steps (Visual Tests)
 
 ```
 Checkout -> Python 3.11 -> Install Deps -> Install Chromium
@@ -198,7 +239,7 @@ Test artifacts (HTML report, JSON results, screenshots) are:
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.10+
 - A Power BI workspace with published reports
 - An Azure AD Service Principal with **Contributor** access to the workspace ([setup guide](https://learn.microsoft.com/en-us/power-bi/developer/embedded/embed-service-principal))
 - If your workspace has RLS-enabled datasets: an RLS role with full data access
@@ -206,15 +247,15 @@ Test artifacts (HTML report, JSON results, screenshots) are:
 ### Install
 
 ```bash
-git clone https://github.com/FilippDor/Fabric-UI-testing.git
-cd Fabric-UI-testing
+git clone https://github.com/FilippDor/power-bi-visual-testing-python.git
+cd power-bi-visual-testing-python
 
 python -m venv .venv
 source .venv/bin/activate   # Linux/Mac
 .venv\Scripts\activate      # Windows
 
-pip install -r requirements_visual_test.txt
-playwright install 
+pip install .
+playwright install --with-deps chromium
 
 cp .env.example .env
 # Edit .env with your credentials
@@ -240,10 +281,10 @@ pytest
 # Run tests in parallel
 pytest -n auto
 
-# Run only the visual scan (skip unit tests)
+# Run only the visual scan (skip pre-flight tests)
 pytest -k "test_pbi_rendering_validation"
 
-# Run only unit/pre-flight tests
+# Run only pre-flight tests
 pytest -k "not test_pbi_rendering_validation"
 ```
 
@@ -258,17 +299,42 @@ pytest -k "not test_pbi_rendering_validation"
 
 ---
 
+## For Contributors
+
+You can contribute without Azure credentials or a Power BI workspace. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+
+### Quick setup for contributors:
+
+```bash
+pip install -e ".[dev]"
+
+# Run unit tests (no credentials needed)
+pytest tests/unit/ -v
+
+# Lint and format
+ruff check .
+ruff format --check .
+
+# Type check
+mypy helper_functions/ fabric_ci_test/
+```
+
+All unit tests use mocks and run locally without any external services.
+
+---
+
 ## Project Structure
 
 ```
-+-- .github/workflows/
-|   +-- visual-tests.yml                    # CI/CD pipeline
-+-- conftest.py                             # Pytest hooks: auto-refresh metadata,
-|                                           #   result aggregation, console summary,
-|                                           #   HTML report generation
-+-- pytest.ini                              # Pytest configuration
-+-- requirements_visual_test.txt            # Python dependencies
-+-- .env.example                            # Environment variable template
++-- .github/
+|   +-- workflows/
+|   |   +-- ci.yml                          # CI quality gates (lint, type check, unit tests)
+|   |   +-- visual-tests.yml                # Visual regression tests (requires credentials)
+|   +-- ISSUE_TEMPLATE/                     # Bug report & feature request templates
+|   +-- PULL_REQUEST_TEMPLATE.md            # PR checklist
++-- fabric_ci_test/
+|   +-- __init__.py                         # Python API module
+|   +-- cli.py                              # CLI entry point
 +-- helper_functions/
 |   +-- token_helpers.py                    # Service Principal auth, embed tokens,
 |   |                                       #   RLS identity handling, API endpoints
@@ -276,14 +342,27 @@ pytest -k "not test_pbi_rendering_validation"
 |   |                                       #   RLS flag detection
 |   +-- file_reader.py                      # JSON file loading utility
 |   +-- log_utils.py                        # Console logging helper
+|   +-- report_html.py                      # HTML report generation
++-- tests/
+|   +-- test_pbi_visual_validation.py       # Integration tests (require credentials)
+|   +-- unit/                               # Unit tests (no credentials needed)
+|   |   +-- test_token_helpers.py
+|   |   +-- test_file_reader.py
+|   |   +-- test_workspace_metadata.py
+|   |   +-- test_report_html.py
+|   +-- test-results/                       # Generated artifacts (gitignored)
 +-- metadata/reports/
 |   +-- reports_datasets.json               # Auto-generated report + dataset metadata
-+-- tests/
-    +-- test_visual_render_embed_multiple_pics.py
-    |   # - Unit tests: env vars, report structure, auth, embed tokens
-    |   # - Visual scan: embed reports, navigate pages, detect errors,
-    |   #   capture screenshots, save results
-    +-- test-results/                       # Generated artifacts (gitignored)
++-- conftest.py                             # Pytest hooks: auto-refresh metadata,
+|                                           #   result aggregation, HTML report generation
++-- pyproject.toml                          # Package metadata & tool configuration
++-- pytest.ini                              # Pytest configuration
++-- .env.example                            # Environment variable template
++-- CONTRIBUTING.md                         # Contribution guide
++-- CHANGELOG.md                            # Release history
++-- SECURITY.md                             # Security policy
++-- CODE_OF_CONDUCT.md                      # Contributor Covenant
++-- LICENSE                                 # MIT License
 ```
 
 ### Key Files
@@ -301,10 +380,24 @@ pytest -k "not test_pbi_rendering_validation"
 
 | Package | Version | Purpose |
 |---------|---------|---------|
-| `playwright` | 1.58.0 | Browser automation (headless Chromium) |
-| `pytest` | 9.0.2 | Test framework |
-| `pytest-html` | 4.2.0 | HTML report generation |
-| `pytest-playwright` | 0.7.2 | Pytest + Playwright integration |
-| `pytest-xdist` | 3.8.0 | Parallel test execution across workers |
-| `python-dotenv` | 1.2.1 | Environment variable loading from `.env` |
-| `requests` | 2.32.5 | HTTP client for Power BI REST API |
+| `playwright` | >= 1.40 | Browser automation (headless Chromium) |
+| `pytest` | >= 7.0 | Test framework |
+| `pytest-html` | >= 4.0 | HTML report generation |
+| `pytest-playwright` | >= 0.7 | Pytest + Playwright integration |
+| `pytest-xdist` | >= 3.0 | Parallel test execution across workers |
+| `python-dotenv` | >= 1.0 | Environment variable loading from `.env` |
+| `requests` | >= 2.28 | HTTP client for Power BI REST API |
+
+### Dev Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| `ruff` | Linting and formatting |
+| `mypy` | Static type checking |
+| `types-requests` | Type stubs for requests |
+
+---
+
+## License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

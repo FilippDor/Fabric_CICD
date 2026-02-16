@@ -1,10 +1,11 @@
-from pathlib import Path
 import json
-from typing import TypeVar, List, Any
+from pathlib import Path
+from typing import Any, TypeVar
 
 T = TypeVar("T", bound=Any)
 
-def read_json_files_from_folder(folder_path: str | Path) -> List[T]:
+
+def read_json_files_from_folder(folder_path: str | Path) -> list[T]:
     """
     Read all JSON files from a folder and return a flat list of reports.
     Assumes each JSON file has a top-level key "reports" that is a list.
@@ -17,7 +18,7 @@ def read_json_files_from_folder(folder_path: str | Path) -> List[T]:
     if not folder.is_dir():
         raise NotADirectoryError(f"Path is not a folder: {folder}")
 
-    all_reports: List[T] = []
+    all_reports: list[T] = []
 
     for json_file in folder.glob("*.json"):
         try:

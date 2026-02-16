@@ -4,6 +4,7 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 dist/
+build/
 .pytest_cache/
 
 # Virtual environment
@@ -20,6 +21,13 @@ tests/test-results/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Dev tools
+.mypy_cache/
+.ruff_cache/
+
+# Workspace-specific metadata (auto-generated)
+metadata/reports/reports_datasets.json
 
 # Dev files
 /devFiles/

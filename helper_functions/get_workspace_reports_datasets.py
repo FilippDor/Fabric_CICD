@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
+import json
 import os
 import sys
-import json
-import requests
 from datetime import datetime, timezone
 from pathlib import Path
+
+import requests
 
 
 def fetch_workspace_metadata(
@@ -46,9 +47,7 @@ def fetch_workspace_metadata(
     )
 
     if token_resp.status_code != 200:
-        raise RuntimeError(
-            f"Failed to acquire access token: {token_resp.text}"
-        )
+        raise RuntimeError(f"Failed to acquire access token: {token_resp.text}")
 
     access_token = token_resp.json()["access_token"]
     headers = {
@@ -79,9 +78,7 @@ def fetch_workspace_metadata(
             if ds_resp.ok:
                 ds_data = ds_resp.json()
                 ds_name = ds_data.get("name", "")
-                is_effective_identity_required = ds_data.get(
-                    "isEffectiveIdentityRequired", False
-                )
+                is_effective_identity_required = ds_data.get("isEffectiveIdentityRequired", False)
                 is_effective_identity_roles_required = ds_data.get(
                     "isEffectiveIdentityRolesRequired", False
                 )
@@ -110,9 +107,7 @@ def fetch_workspace_metadata(
             "DatasetId": ds_id,
             "DatasetName": ds_info.get("name", ""),
             "WorkspaceId": workspace_id,
-            "IsEffectiveIdentityRequired": ds_info.get(
-                "isEffectiveIdentityRequired", False
-            ),
+            "IsEffectiveIdentityRequired": ds_info.get("isEffectiveIdentityRequired", False),
             "IsEffectiveIdentityRolesRequired": ds_info.get(
                 "isEffectiveIdentityRolesRequired", False
             ),
@@ -121,8 +116,7 @@ def fetch_workspace_metadata(
 
     payload = {
         "workspaceId": workspace_id,
-        "generatedAtUtc": datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-        + "Z",
+        "generatedAtUtc": datetime.now(timezone.utc).replace(microsecond=0).isoformat() + "Z",
         "reportCount": len(report_list),
         "reports": report_list,
     }
@@ -177,10 +171,10 @@ if __name__ == "__main__":
 
     try:
         fetch_workspace_metadata(
-            client_id=app_id,
-            client_secret=client_secret,
-            tenant_id=tenant_id,
-            workspace_id=workspace_id,
+            client_id=app_id,  # type: ignore[arg-type]
+            client_secret=client_secret,  # type: ignore[arg-type]
+            tenant_id=tenant_id,  # type: ignore[arg-type]
+            workspace_id=workspace_id,  # type: ignore[arg-type]
             environment=environment,
             output_path=output_file,
         )

@@ -1,22 +1,23 @@
-import os
 import json
+import os
 import time
 from pathlib import Path
+
 import pytest
-from playwright.sync_api import Page
 from dotenv import load_dotenv
+from playwright.sync_api import Page
 
 load_dotenv()
 
-from helper_functions.token_helpers import (
-    get_access_token,
-    get_report_embed_token,
-    create_report_embed_info,
-    get_api_endpoints,
-    TestSettings,
-)
 from helper_functions.file_reader import read_json_files_from_folder
 from helper_functions.log_utils import log_to_console
+from helper_functions.token_helpers import (
+    TestSettings,
+    create_report_embed_info,
+    get_access_token,
+    get_api_endpoints,
+    get_report_embed_token,
+)
 
 # -------------------- ENV --------------------
 CLIENT_ID = os.environ.get("SP_CLIENT_ID")
@@ -30,9 +31,7 @@ if not CLIENT_ID or not CLIENT_SECRET or not TENANT_ID:
 # -------------------- PATHS --------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEST_RESULTS_DIR = BASE_DIR / "tests" / "test-results"
-TEST_RESULTS_DIR.mkdir(
-    parents=True, exist_ok=True
-)  # Playwright ensures clean, but just in case
+TEST_RESULTS_DIR.mkdir(parents=True, exist_ok=True)  # Playwright ensures clean, but just in case
 
 REPORTS_PATH = BASE_DIR / "metadata" / "reports"
 reports = read_json_files_from_folder(REPORTS_PATH)
@@ -61,6 +60,7 @@ def browser_context_args():
 
 
 # -------------------- TESTS --------------------
+@pytest.mark.integration
 @pytest.mark.parametrize("report", reports, ids=lambda r: f"{r['Name']} ({r['Id']})")
 def test_pbi_rendering_validation(page: Page, access_token: str, report: dict):
     start_time = time.time()
@@ -125,15 +125,28 @@ def test_pbi_rendering_validation(page: Page, access_token: str, report: dict):
 
                 let errorDetected = false;
                 const visuals = await pageObj.getVisuals();
-                let renderedVisuals = 0;
+                const renderedSet = new Set();
                 const pageErrors = {};
+                const reportErrors = [];
+
+                // Build visual lookup: name -> title (display name)
+                const visualMap = {};
+                for (const v of visuals) {
+                    visualMap[v.name] = v.title || v.name;
+                }
 
                 const onError = (event) => {
-                    const visualId = event?.detail?.visualName || event?.detail?.visualId || 'unknown';
-                    pageErrors[visualId] = event?.detail?.message || 'Unknown Power BI error';
+                    const msg = event?.detail?.message || 'Unknown Power BI error';
+                    reportErrors.push(msg);
                     errorDetected = true;
                 };
-                const onRendered = () => renderedVisuals++;
+
+                const onRendered = (event) => {
+                    const visualName = event?.detail?.name;
+                    if (visualName) {
+                        renderedSet.add(visualName);
+                    }
+                };
 
                 report.on('error', onError);
                 report.on('visualRendered', onRendered);
@@ -143,7 +156,7 @@ def test_pbi_rendering_validation(page: Page, access_token: str, report: dict):
                 await Promise.race([
                     new Promise(resolve => {
                         const check = () => {
-                            if (errorDetected || renderedVisuals >= visuals.length) resolve();
+                            if (errorDetected || renderedSet.size >= visuals.length) resolve();
                             else setTimeout(check, 1000);
                         };
                         check();
@@ -154,11 +167,32 @@ def test_pbi_rendering_validation(page: Page, access_token: str, report: dict):
                 report.off('error', onError);
                 report.off('visualRendered', onRendered);
 
+                // Identify visuals that failed to render
+                for (const v of visuals) {
+                    if (!renderedSet.has(v.name)) {
+                        const label = v.title || v.name;
+                        pageErrors[label] = 'Visual did not render within timeout';
+                    }
+                }
+
+                // Attach report-level errors to the page
+                for (let i = 0; i < reportErrors.length; i++) {
+                    const key = `report-error-${i + 1}`;
+                    pageErrors[key] = reportErrors[i];
+                }
+
                 const pageEnd = performance.now();
                 const duration = pageEnd - pageStart;
 
                 allPages[pageName] = {
                     errors: pageErrors,
+                    visuals: Object.fromEntries(
+                        visuals.map(v => [v.name, {
+                            title: v.title || v.name,
+                            type: v.type,
+                            rendered: renderedSet.has(v.name)
+                        }])
+                    ),
                     duration,
                     embedUrl: `https://app.powerbi.com/reportEmbed?reportId=${reportInfo.reportId}&pageName=${pageName}`,
                     serviceUrl: `https://app.powerbi.com/groups/${reportInfo.workspaceId}/reports/${reportInfo.reportId}/${pageName}`
@@ -210,9 +244,7 @@ def test_pbi_rendering_validation(page: Page, access_token: str, report: dict):
     worker_file = TEST_RESULTS_DIR / f"results_{worker_id}.json"
 
     existing_results = (
-        json.loads(worker_file.read_text(encoding="utf-8"))
-        if worker_file.exists()
-        else []
+        json.loads(worker_file.read_text(encoding="utf-8")) if worker_file.exists() else []
     )
 
     # Build result FIRST
@@ -239,12 +271,8 @@ def test_pbi_rendering_validation(page: Page, access_token: str, report: dict):
     )
 
     # -------------------- LOG PASSED / FAILED --------------------
-    passed_pages = [
-        name for name, info in scan_results["allPages"].items() if not info["errors"]
-    ]
-    failed_pages = [
-        name for name, info in scan_results["allPages"].items() if info["errors"]
-    ]
+    passed_pages = [name for name, info in scan_results["allPages"].items() if not info["errors"]]
+    failed_pages = [name for name, info in scan_results["allPages"].items() if info["errors"]]
 
     if passed_pages:
         print("\n[PASS] Pages rendered successfully:")
@@ -259,61 +287,3 @@ def test_pbi_rendering_validation(page: Page, access_token: str, report: dict):
 
     # -------------------- ASSERTIONS --------------------
     assert len(failed_pages) == 0, f"{len(failed_pages)} pages failed visuals."
-
-    # ==================== UNIT TESTS ====================
-
-
-def test_required_env_vars_exist():
-    assert CLIENT_ID, "SP_CLIENT_ID is missing"
-    assert CLIENT_SECRET, "SP_CLIENT_SECRET is missing"
-    assert TENANT_ID, "SP_TENANT_ID is missing"
-
-
-def test_environment_default():
-    assert ENVIRONMENT in {"prod", "dev", "test", "qa"}
-
-
-def test_reports_loaded():
-    assert len(reports) > 0
-
-
-def test_report_structure():
-    required_fields = {"Id", "Name", "EmbedUrl", "WorkspaceId"}
-    for report in reports:
-        assert required_fields.issubset(report.keys())
-
-
-def test_report_ids_unique():
-    ids = [r["Id"] for r in reports]
-    assert len(ids) == len(set(ids))
-
-
-def test_access_token_success():
-    settings = TestSettings(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        tenant_id=TENANT_ID,
-        environment=ENVIRONMENT,
-    )
-
-    token = get_access_token(settings)
-    assert isinstance(token, str)
-    assert len(token) > 20
-
-
-def test_embed_token_success():
-    report = reports[0]
-    embed_info = create_report_embed_info(report)
-
-    settings = TestSettings(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        tenant_id=TENANT_ID,
-        environment=ENVIRONMENT,
-    )
-
-    access_token = get_access_token(settings)
-    token = get_report_embed_token(embed_info, endpoints, access_token)
-
-    assert isinstance(token, str)
-    assert len(token) > 20

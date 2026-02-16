@@ -3,10 +3,11 @@
 __version__ = "0.1.0"
 
 import os
-import sys
 import subprocess
+import sys
 import webbrowser
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 
@@ -67,18 +68,16 @@ def fetch() -> dict:
         if not value
     ]
     if missing:
-        raise RuntimeError(
-            f"Missing required environment variables: {', '.join(missing)}"
-        )
+        raise RuntimeError(f"Missing required environment variables: {', '.join(missing)}")
 
     from helper_functions.get_workspace_reports_datasets import fetch_workspace_metadata
 
     output_path = root / "metadata" / "reports" / "reports_datasets.json"
     return fetch_workspace_metadata(
-        client_id=client_id,
-        client_secret=client_secret,
-        tenant_id=tenant_id,
-        workspace_id=workspace_id,
+        client_id=client_id,  # type: ignore[arg-type]
+        client_secret=client_secret,  # type: ignore[arg-type]
+        tenant_id=tenant_id,  # type: ignore[arg-type]
+        workspace_id=workspace_id,  # type: ignore[arg-type]
         environment=environment,
         output_path=output_path,
     )

@@ -1,8 +1,8 @@
 import os
 from dataclasses import dataclass
-from typing import Optional, Dict, Any
-import requests
+from typing import Any
 
+import requests
 
 # -----------------------------
 # Types
@@ -21,10 +21,10 @@ class TestSettings:
 class ReportEmbedInfo:
     report_id: str
     workspace_id: str
-    dataset_id: Optional[str] = None
-    page_id: Optional[str] = None
-    role: Optional[str] = None
-    bookmark_id: Optional[str] = None
+    dataset_id: str | None = None
+    page_id: str | None = None
+    role: str | None = None
+    bookmark_id: str | None = None
     is_effective_identity_required: bool = False
     is_effective_identity_roles_required: bool = False
 
@@ -53,7 +53,7 @@ def get_access_token(settings: TestSettings) -> str:
     response.raise_for_status()
 
     json_data = response.json()
-    access_token = json_data.get("access_token")
+    access_token: str | None = json_data.get("access_token")
 
     if not access_token:
         raise RuntimeError(f"Failed to get access token: {json_data}")
@@ -75,7 +75,7 @@ def get_report_embed_token(
         f"{report_info.report_id}/GenerateToken"
     )
 
-    body: Dict[str, Any] = {"accessLevel": "View"}
+    body: dict[str, Any] = {"accessLevel": "View"}
 
     # Build effective identity only when required by the dataset (DirectQuery/live connection with RLS)
     if report_info.is_effective_identity_required and report_info.dataset_id:
@@ -84,7 +84,7 @@ def get_report_embed_token(
         if not role:
             role = os.environ.get("DEFAULT_RLS_ROLE")
 
-        identity: Dict[str, Any] = {
+        identity: dict[str, Any] = {
             "username": "TestUser",
             "datasets": [report_info.dataset_id],
         }
@@ -106,12 +106,11 @@ def get_report_embed_token(
         )
 
     json_data = response.json()
-    token = json_data.get("token")
+    token: str | None = json_data.get("token")
 
     if not token:
         raise RuntimeError(
-            f"Failed to get embed token for report "
-            f"{report_info.report_id}: {json_data}"
+            f"Failed to get embed token for report {report_info.report_id}: {json_data}"
         )
 
     return token
@@ -121,7 +120,7 @@ def get_report_embed_token(
 # Create Report Embed Info
 
 
-def create_report_embed_info(report: Dict[str, Any]) -> ReportEmbedInfo:
+def create_report_embed_info(report: dict[str, Any]) -> ReportEmbedInfo:
     if not report.get("WorkspaceId"):
         raise ValueError(f"Report {report.get('Name')} is missing WorkspaceId")
 
@@ -138,9 +137,7 @@ def create_report_embed_info(report: Dict[str, Any]) -> ReportEmbedInfo:
         role=report.get("Role"),
         bookmark_id=report.get("BookmarkId"),
         is_effective_identity_required=report.get("IsEffectiveIdentityRequired", False),
-        is_effective_identity_roles_required=report.get(
-            "IsEffectiveIdentityRolesRequired", False
-        ),
+        is_effective_identity_roles_required=report.get("IsEffectiveIdentityRolesRequired", False),
     )
 
 

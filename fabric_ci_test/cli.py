@@ -1,8 +1,7 @@
 """CLI entry point for fabric-ci-test."""
 
-import os
-import sys
 import subprocess
+import sys
 import webbrowser
 from pathlib import Path
 
@@ -34,9 +33,7 @@ def init():
 
     if not env_file.exists():
         if env_example.exists():
-            env_file.write_text(
-                env_example.read_text(encoding="utf-8"), encoding="utf-8"
-            )
+            env_file.write_text(env_example.read_text(encoding="utf-8"), encoding="utf-8")
             click.echo(f"Created {env_file} from .env.example")
         else:
             template = (
@@ -56,7 +53,7 @@ def init():
 
     click.echo("\nInstalling Playwright browsers")
     result = subprocess.run(
-        [sys.executable, "-m", "playwright", "install"], #, "--with-deps", "chromium"],
+        [sys.executable, "-m", "playwright", "install"],  # , "--with-deps", "chromium"],
         check=False,
     )
     if result.returncode == 0:
@@ -88,25 +85,28 @@ def fetch():
     sys.exit(result.returncode)
 
 
-@cli.command(context_settings={"ignore_unknown_options": True})
+@cli.command(
+    name="report-visual-testing",
+    context_settings={"ignore_unknown_options": True},
+)
 @click.option(
     "--workers", "-n", default="auto", help="Number of parallel workers (integer or 'auto')."
 )
-@click.option(
-    "--filter", "-k", "test_filter", default=None, help="Filter tests by name (pytest -k)."
-)
 @click.argument("pytest_args", nargs=-1, type=click.UNPROCESSED)
-def test(workers, test_filter, pytest_args):
-    """Run visual regression tests."""
+def report_visual_testing(workers, pytest_args):
+    """Run Playwright visual regression tests against Power BI reports."""
     root = _find_project_root()
     load_dotenv(root / ".env")
 
-    cmd = [sys.executable, "-m", "pytest"]
+    cmd = [
+        sys.executable,
+        "-m",
+        "pytest",
+        str(root / "tests" / "test_pbi_visual_validation.py"),
+    ]
 
     if workers:
         cmd.extend(["-n", str(workers)])
-    if test_filter:
-        cmd.extend(["-k", test_filter])
 
     cmd.extend(pytest_args)
 
@@ -122,13 +122,11 @@ def report(show_json):
     root = _find_project_root()
     results_dir = root / "tests" / "test-results"
 
-    target = results_dir / (
-        "all_reports_results.json" if show_json else "report.html"
-    )
+    target = results_dir / ("all_reports_results.json" if show_json else "report.html")
 
     if not target.exists():
         click.echo(f"Report not found: {target}", err=True)
-        click.echo("Run 'fabric-ci-test test' first to generate a report.")
+        click.echo("Run 'fabric-ci-test report-visual-testing' first to generate a report.")
         sys.exit(1)
 
     click.echo(f"Opening {target.name}...")

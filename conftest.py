@@ -1,8 +1,8 @@
+import json
 import os
+import subprocess
 import sys
 import time
-import json
-import subprocess
 import webbrowser
 from pathlib import Path
 
@@ -61,9 +61,7 @@ def pytest_sessionfinish(session, exitstatus):
         "failedPages": failed_pages,
         "passedPages": total_pages - failed_pages,
         "passRate": (
-            round(((total_pages - failed_pages) / total_pages) * 100, 2)
-            if total_pages
-            else 0
+            round(((total_pages - failed_pages) / total_pages) * 100, 2) if total_pages else 0
         ),
     }
 
