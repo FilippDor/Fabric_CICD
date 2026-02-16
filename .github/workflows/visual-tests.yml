@@ -60,6 +60,10 @@ jobs:
           path: tests/test-results/
           retention-days: 30
 
+      - name: Create index.html for GitHub Pages
+        if: always()
+        run: cp tests/test-results/report.html tests/test-results/index.html
+
       - name: Deploy report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v4
