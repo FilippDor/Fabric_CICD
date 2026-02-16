@@ -9,7 +9,7 @@ description = "Power BI visual regression testing CLI for Microsoft Fabric CI/CD
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
-authors = [{name = "Filippos A. Dorezi", email = "filippos.dorezi@gmail.com}]
+authors = [{name = "Filippos A. Dorezi", email = "filippos.dorezi@gmail.com"}]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",

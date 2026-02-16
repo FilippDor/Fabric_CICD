@@ -22,7 +22,7 @@ def _find_project_root():
 @click.group()
 @click.version_option(package_name="fabric-ci-test")
 def cli():
-    """Fabric CI Test - Power BI visual regression testing."""
+    """Fabric CI Test: Power BI visual regression testing."""
 
 
 @cli.command()
@@ -54,9 +54,9 @@ def init():
 
     click.echo("Edit .env with your Service Principal credentials.")
 
-    click.echo("\nInstalling Playwright browsers (chromium)...")
+    click.echo("\nInstalling Playwright browsers")
     result = subprocess.run(
-        [sys.executable, "-m", "playwright", "install", "--with-deps", "chromium"],
+        [sys.executable, "-m", "playwright", "install"], #, "--with-deps", "chromium"],
         check=False,
     )
     if result.returncode == 0:
